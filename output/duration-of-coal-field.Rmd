@@ -1,0 +1,52 @@
+---
+title: "Duration of Coal-Field"
+author: "Richard Lea <https://github.com/chigix>"
+date: "9/10/2021"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
+library(readxl)
+library(magrittr)
+library(ggplot2)
+```
+
+```{r file-loading}
+duration_coal_field_file <- './data/duration of the northumberland and durham coal-field.xlsx'
+```
+
+
+## Data Tidy
+
+```{r}
+duration_coal_field_result_raw <- read_excel(duration_coal_field_file, sheet = "Sheet1")
+duration_coal_field_result_raw
+
+duration_coal_field_result <- tidyr::pivot_longer(duration_coal_field_result_raw,
+                                                  c(`Supposed Area of Coal Measures unworked`,
+                                                    `Estimated Amount of Coal`,
+                                                    `Assumed Annual Consumption of Coal`,
+                                                    `Duration of Supply`),
+                                                  names_to = "Estimate", values_to = "Value")
+
+duration_coal_field_result
+```
+
+## Make Graphs
+
+```{r}
+duration_coal_field_result_raw %>%
+  ggplot() +
+  geom_line(mapping = aes(x = `Date of Estimate`, y = `Duration of Supply`))
+```
+```{r}
+duration_coal_field_result %>%
+  ggplot() +
+  geom_path(mapping = aes(x = `Date of Estimate`, y = `Value`), na.rm = FALSE) +
+  facet_grid(Estimate ~ ., scales = "free_y")
+```
+
